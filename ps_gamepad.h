@@ -1,7 +1,14 @@
 #pragma once
 #include <SPI.h>
+#ifdef ENABLE_DEBUG
 #include <log.h>
+#endif
 #include <spi_driver.h>
+
+#ifdef ENABLE_PS2X_SUPPORT
+        #define DISABLE_PS2X_CONSTANTS
+        #include <PS2X_lib.h>
+#endif
 
 namespace hand
 {
@@ -70,7 +77,20 @@ namespace hand
     const static uint8_t m_enable_rumble[] = {0x01,0x4D,0x00,0x00,0x01};
     const static uint8_t m_type_read[] = {0x01,0x45,0x00,0x5A,0x5A,0x5A,0x5A,0x5A,0x5A};
 
-    class ps2_gamepad
+    class ps2_gamepad_base
+    {
+    public:
+        virtual ps2_config_result configure() = 0;
+        virtual void update(uint8_t m1, uint8_t m2) = 0;
+        virtual bool button(uint16_t btn) = 0;
+        virtual bool changed() = 0;
+        virtual bool changed(uint16_t btn) = 0;
+        virtual bool pressed(uint16_t btn) = 0;
+        virtual bool released(uint16_t btn) = 0;
+        virtual uint8_t analog(ps2_analog data) = 0;
+    };
+
+    class ps2_gamepad : public ps2_gamepad_base
     {
     private:
         void reconfigure();
@@ -81,39 +101,39 @@ namespace hand
     public:
         ps2_gamepad(spi_driver& driver, bool rumble, bool pressures);
 
-        ps2_config_result configure();
+        virtual ps2_config_result configure();
 
-        void update(uint8_t m1, uint8_t m2)
+        virtual void update(uint8_t m1, uint8_t m2)
         {
             readGamepad(m1, m2);
         }
 
-        bool button(uint16_t btn)
+        virtual bool button(uint16_t btn)
         {
             return ~m_buttons & btn;
         }
 
-        bool changed()
+        virtual bool changed()
         {
             return m_last_buttons ^ m_buttons;
         }
 
-        bool changed(uint16_t btn)
+        virtual bool changed(uint16_t btn)
         {
             return (m_last_buttons ^ m_buttons) & btn;
         }
 
-        bool pressed(uint16_t btn)
+        virtual bool pressed(uint16_t btn)
         {
             return changed(btn) && button(btn);
         }
 
-        bool released(uint16_t btn)
+        virtual bool released(uint16_t btn)
         {
              return changed(btn) && !button(btn);
         }
 
-        uint8_t analog(ps2_analog data)
+        virtual uint8_t analog(ps2_analog data)
         {
             return m_buffer[data];
         }
@@ -148,4 +168,26 @@ namespace hand
 
 
     };
+
+    #ifdef ENABLE_PS2X_SUPPORT
+
+    class ps2x_gamepad : public ps2_gamepad_base
+    {
+    public:
+        virtual ps2_config_result configure();
+        virtual void update(uint8_t m1, uint8_t m2);
+        virtual bool button(uint16_t btn);
+        virtual bool changed();
+        virtual bool changed(uint16_t btn);
+        virtual bool pressed(uint16_t btn);
+        virtual bool released(uint16_t btn);
+        virtual uint8_t analog(ps2_analog data);
+
+        ps2x_gamepad(int miso, int mosi, int sck, int ss);
+    private:
+        PS2X m_ps2x;
+        int m_mosi, m_miso, m_sck, m_ss;
+    };
+
+    #endif // ENABLE_PS2X_SUPPORT
 }

@@ -22,15 +22,15 @@ void software_spi_driver::init()
     pinMode(m_ss_pin, OUTPUT);
     pinMode(m_sck_pin, OUTPUT);
     pinMode(m_mosi_pin, OUTPUT);
-    #if defined(__AVR__)
-        pinMode(m_miso_pin, INPUT);
-    #else
+    //#if defined(__AVR__)
+    //    pinMode(m_miso_pin, INPUT);
+    //#else
         pinMode(m_miso_pin, INPUT_PULLUP);
-    #endif
+    //#endif
     m_mosi_reg = portOutputRegister(digitalPinToPort(m_mosi_pin));
     m_mosi_mask = digitalPinToBitMask(m_mosi_pin);
 
-    m_miso_reg = portInputRegister(digitalPinToPort(m_mosi_pin));
+    m_miso_reg = portInputRegister(digitalPinToPort(m_miso_pin));
     m_miso_mask = digitalPinToBitMask(m_miso_pin);
 
     m_sck_reg = portOutputRegister(digitalPinToPort(m_sck_pin));
@@ -76,13 +76,13 @@ uint8_t software_spi_driver::transfer(uint8_t byte)
 
         reset_sck();
 
-        delayMicroseconds(m_clk_delay);
+        delayMicroseconds(4);
 
-        if(check_miso()) temp |= (1 << i);
+        if(check_miso()) bitSet(temp, i);
 
         set_sck();
 
-        delayMicroseconds(m_clk_delay);
+        //delayMicroseconds(m_clk_delay);
     }
     set_mosi();
     delayMicroseconds(m_byte_delay);
@@ -156,9 +156,10 @@ void software_spi_driver::reset_ss()
     #endif
 }
 
-bool software_spi_driver::check_miso()
+
+inline bool software_spi_driver::check_miso()
 {
-    #ifdef ENABLE_SLOW_DIGITAL
+    #ifdef ENABLE_SLOW_DIGITAL_READ
         return digitalRead(m_miso_pin);
     #else
         return *m_miso_reg & m_miso_mask;

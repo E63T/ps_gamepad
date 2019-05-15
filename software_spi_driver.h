@@ -32,5 +32,7 @@ namespace hand
 
         void set_sck();
         void reset_sck();
+
+    friend void ::setup();
     };
 }

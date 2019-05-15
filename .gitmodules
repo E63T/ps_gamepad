@@ -1,0 +1,3 @@
+[submodule "libraries/Arduino-PS2X"]
+	path = libraries/Arduino-PS2X
+	url = https://github.com/mechanical-hand/Arduino-PS2X
