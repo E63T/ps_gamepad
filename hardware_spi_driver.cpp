@@ -13,7 +13,7 @@ void hardware_spi_driver::select()
         SPI.beginTransaction(m_settings);
         digitalWrite(m_ss_pin, LOW);
     #else
-        SPI.beginTransaction(m_settings, m_ss_pin);
+        SPI.beginTransaction(m_ss_pin, m_settings);
     #endif
 }
 
