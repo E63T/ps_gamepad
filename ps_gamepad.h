@@ -91,6 +91,16 @@ namespace hand
         virtual bool pressed(uint16_t btn) = 0;
         virtual bool released(uint16_t btn) = 0;
         virtual uint8_t analog(ps2_analog data) = 0;
+        virtual uint16_t buttonsState() = 0;
+        virtual void dumpBuffer(Print&) = 0;
+
+        ps2_config_result lastConfigResult()
+        {
+            return m_last_config_result;
+        }
+
+    protected:
+        ps2_config_result m_last_config_result;
     };
 
     class ps2_gamepad : public ps2_gamepad_base
@@ -146,15 +156,12 @@ namespace hand
             return m_buttons;
         }
 
-        ps2_config_result lastConfigResult()
-        {
-            return m_last_config_result;
-        }
-
         uint8_t *buffer()
         {
             return m_buffer;
         }
+
+        void dumpBuffer(Print& p);
     private:
         spi_driver& m_driver;
 
@@ -163,7 +170,6 @@ namespace hand
         uint8_t m_read_delay;
         uint8_t m_buffer[21], m_controller_type;
         uint16_t m_buttons, m_last_buttons;
-        ps2_config_result m_last_config_result;
 
         #ifdef ENABLE_DEBUG
             logger<HardwareSerial> *m_log;
@@ -185,6 +191,8 @@ namespace hand
         virtual bool pressed(uint16_t btn);
         virtual bool released(uint16_t btn);
         virtual uint8_t analog(ps2_analog data);
+        virtual uint16_t buttonsState();
+        virtual void dumpBuffer(Print&);
 
         ps2x_gamepad(int miso, int mosi, int sck, int ss);
     private:

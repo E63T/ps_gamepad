@@ -17,15 +17,16 @@ ps2_config_result ps2x_gamepad::configure()
     switch(result)
     {
         case 0:
-            return ps2_config_result::OK;
+            m_last_config_result = ps2_config_result::OK;
             break;
         case 1:
-            return ps2_config_result::NO_CONTROLLER;
+            m_last_config_result =  ps2_config_result::NO_CONTROLLER;
             break;
         default:
-            return ps2_config_result::NO_CONNECTION;
+            m_last_config_result =  ps2_config_result::NO_CONNECTION;
             break;
     }
+    return m_last_config_result;
 }
 
 void ps2x_gamepad::update(uint8_t m1, uint8_t m2)
@@ -61,6 +62,16 @@ bool ps2x_gamepad::changed()
 uint8_t ps2x_gamepad::analog(ps2_analog data)
 {
     return m_ps2x.Analog(data);
+}
+
+uint16_t ps2x_gamepad::buttonsState()
+{
+    return m_ps2x.ButtonDataByte();
+}
+
+void ps2x_gamepad::dumpBuffer(Print& p)
+{
+    m_ps2x.dump_buffer(p);
 }
 
 #endif

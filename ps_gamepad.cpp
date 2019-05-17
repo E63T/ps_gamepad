@@ -184,3 +184,12 @@ void ps2_gamepad::reconfigure()
     m_driver.transfer(m_exit_cfg, sizeof(m_exit_cfg));
     m_driver.unselect();
 }
+
+void ps2_gamepad::dumpBuffer(Print &p)
+{
+    for(unsigned i = 0; i < 21; i++)
+    {
+        p.print(m_buffer[i], HEX);
+        p.print(" ");
+    }
+}
