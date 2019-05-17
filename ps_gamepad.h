@@ -7,6 +7,9 @@
 
 #ifdef ENABLE_PS2X_SUPPORT
         #define DISABLE_PS2X_CONSTANTS
+        #if defined(HAND_REGISTER_T) && !defined(PS2X_REGISTER_T)
+            #defined PS2X_REGISTER_T HAND_REGISTER_T
+        #endif
         #include <PS2X_lib.h>
 #endif
 

@@ -1,6 +1,5 @@
 //#define ENABLE_SLOW_DIGITAL_READ
 #include "software_spi_driver.h"
-
 #include "ps_gamepad.h"
 
 #ifdef ENABLE_PS2X_SUPPORT
